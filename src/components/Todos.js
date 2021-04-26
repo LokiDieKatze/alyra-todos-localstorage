@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import TodosList from "./TodosList"
 import SelectTodos from "./SelectTodos"
 import AddTodoForm from "./AddTodoForm"
@@ -33,8 +33,12 @@ const initialTodos = [
 ]
 
 const Todos = () => {
-  const [todos, setTodos] = useState(initialTodos)
+  const [todos, setTodos] = useState(
+    () => JSON.parse(localStorage.getItem("my-todos")) || initialTodos
+  )
   const [filter, setFilter] = useState("all")
+
+
 
   const addTodo = (text) => {
     const newTodo = {
@@ -74,11 +78,43 @@ const Todos = () => {
   })
 
   const completedCount = todos.filter((el) => el.isCompleted).length
+
+  useEffect(() => {
+    document.title =
+      todos.length - completedCount > 0 ?
+        `You have ${todos.length - completedCount} more tasks to go!` :
+        `What are your plans?`
+  }, [todos, completedCount])
+
+  const [darkMode, setDarkMode] = useState(false)
+  const handleCheckboxChange = () => {
+    setDarkMode(!darkMode)
+  }
+
+  const darkModeCheck = (props) => {
+    const { darkMode, setDarkMode } = props;
+    const handleCheckboxChange = () => {
+      setDarkMode(!darkMode);
+    };
+
+    () => JSON.parse(localStorage.getItem("dark-mode") || !isChecked)
+
+  }
+  useEffect(() => {
+    localStorage.setItem("my-todos", JSON.stringify(todos));
+    // localStorage.setItem("dark-mode", JSON.stringify(isCkecked))
+  }, [todos]
+  )
+
   return (
     <main>
       <h2 className="text-center">
         Ma liste de tâches ({completedCount} / {todos.length})
       </h2>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="activate" onChange={handleCheckboxChange} />
+        <label class="form-check-label" for="activate"> Mode Sombre </label>
+      </div>
       <SelectTodos filter={filter} setFilter={setFilter} />
       <TodosList
         todos={filteredTodos}
