@@ -33,11 +33,16 @@ const initialTodos = [
 ]
 
 const Todos = () => {
+
   const [todos, setTodos] = useState(
     () => JSON.parse(localStorage.getItem("my-todos")) || initialTodos
   )
   const [filter, setFilter] = useState("all")
 
+  const [darkMode, setDarkMode] = useState(
+    () => JSON.parse(localStorage.getItem("dark-mode") || false
+    )
+  )
 
 
   const addTodo = (text) => {
@@ -79,6 +84,10 @@ const Todos = () => {
 
   const completedCount = todos.filter((el) => el.isCompleted).length
 
+  const handleCheckboxChange = () => {
+    setDarkMode(!darkMode)
+  }
+
   useEffect(() => {
     document.title =
       todos.length - completedCount > 0 ?
@@ -86,23 +95,19 @@ const Todos = () => {
         `What are your plans?`
   }, [todos, completedCount])
 
-  const [darkMode, setDarkMode] = useState(false)
-  const handleCheckboxChange = () => {
-    setDarkMode(!darkMode)
+  useEffect(() => {
+    document.body.className =
+      darkMode ? document.body.className = "bg-dark text-light" :
+        document.body.className = "bg-light text-dark"
+  }, [darkMode])
+
+  useEffect(() => {
+    localStorage.setItem("dark-mode", JSON.stringify(darkMode))
   }
+  )
 
-  const darkModeCheck = (props) => {
-    const { darkMode, setDarkMode } = props;
-    const handleCheckboxChange = () => {
-      setDarkMode(!darkMode);
-    };
-
-    () => JSON.parse(localStorage.getItem("dark-mode") || !isChecked)
-
-  }
   useEffect(() => {
     localStorage.setItem("my-todos", JSON.stringify(todos));
-    // localStorage.setItem("dark-mode", JSON.stringify(isCkecked))
   }, [todos]
   )
 
@@ -112,7 +117,8 @@ const Todos = () => {
         Ma liste de tâches ({completedCount} / {todos.length})
       </h2>
       <div class="form-check form-switch">
-        <input class="form-check-input" type="checkbox" id="activate" onChange={handleCheckboxChange} />
+        {darkMode ? <input class="form-check-input" type="checkbox" id="activate" onChange={handleCheckboxChange} checked /> :
+          <input class="form-check-input" type="checkbox" id="activate" onChange={handleCheckboxChange} />}
         <label class="form-check-label" for="activate"> Mode Sombre </label>
       </div>
       <SelectTodos filter={filter} setFilter={setFilter} />
